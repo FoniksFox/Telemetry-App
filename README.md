@@ -28,6 +28,7 @@ This will be a joint project with a simple backend that simulates values and beh
 - **User-Friendly**: Intuitive interactions and clear visual feedback
 - **Performance**: Efficient DOM manipulation with information displayed as fast as possible
 - **Accessibility**: Semantic HTML and keyboard navigation support
+- **Modularity:** Functionalities should be reusable (as much as possible)
 
 ## Technical Approach
 
@@ -60,10 +61,13 @@ This will be a joint project with a simple backend that simulates values and beh
 - [ ] Historical data playback
 - [ ] Alert/threshold configuration
 - [ ] Data export functionality
+- [ ] Windows / Grid dashboard view
 - [ ] Multiple dashboard layouts
 - [ ] Dark/light theme toggle
 - [ ] Custom chart configurations
 - [ ] Mobile support
+- [ ] Dynamic command interface based on backend configuration
+- [ ] Real-time validation of telemetry data based on received schemas
 
 ## Project Structure
 
@@ -80,11 +84,10 @@ Telemetry-App/
 │   │   │   ├── services/       # Angular services
 │   │   │   ├── models/         # TypeScript interfaces
 │   │   │   ├── pages/          # Route components
-│   │   │   └── shared/         # Shared modules
+│   │   │   ├── shared/         # Shared modules
+│   │   │   └── app component   # Files of the app components itself
 │   │   ├── assets/             # Static assets
 │   │   └── styles/             # Global styles
-│   ├── angular.json            # Angular configuration
-│   ├── package.json            # Node dependencies
 │   └── README.md               # Frontend documentation
 └── README.md                   # This file
 ```
@@ -107,29 +110,6 @@ Telemetry-App/
 - **WebSockets:** FastAPI WebSocket support
 - **Data Generation:** Random/synthetic telemetry data
 - **Testing:** pytest
-
-## Design Decisions
-
-### UI/UX Approach
-
-- Dashboard-style layout with multiple panels
-- Real-time updates without page refresh
-- Clean, professional interface suitable for monitoring applications
-- Color coding for different telemetry parameters
-
-### Data Visualization
-
-- Line charts for time-series data
-- Gauge charts for current values
-- Bar charts for comparative data
-- Responsive charts that adapt to container size
-
-### Performance Considerations
-
-- Efficient data streaming with WebSockets
-- Chart data limiting to prevent memory issues
-- OnPush change detection strategy for better performance
-- Lazy loading for feature modules
 
 ## Getting Started
 
@@ -182,9 +162,11 @@ This project will demonstrate:
 - TypeScript and modern JavaScript usage
 
 ## Design Decisions
+
 *Will host sections explaining all the decisions made in the process and why were they made*
 
 ## Notes and Reflections
+
 *This section will be updated throughout the development process with insights, challenges, and solutions discovered during implementation.*
 
 ## Resources
@@ -198,5 +180,5 @@ This project will demonstrate:
 ---
 
 **Started:** July 28, 2025
-**Developer:** [Your Name]
+**Developer:** Boris Mladenov Beslimov, Oscar Gonzalez Reinaldos
 **Project:** Weekly-Projects Telemetry App
