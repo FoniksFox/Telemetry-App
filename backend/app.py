@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
 import logging
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from typing import Optional
 from datetime import datetime
@@ -14,14 +15,31 @@ logger = logging.getLogger(__name__)
 
 
 from services.websocket_manager import websocket_manager
+from services.simulator import simulator
 
 # Load environment variables
 load_dotenv()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager to handle startup and shutdown events."""
+    # Startup
+    logger.info("Starting telemetry simulator...")
+    await simulator.start()
+    
+    yield
+    
+    # Shutdown
+    logger.info("Stopping telemetry simulator...")
+    await simulator.stop()
+
+
 app = FastAPI(
     title="Telemetry App Backend",
     description="Real-time telemetry data streaming and command interface",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -52,8 +70,8 @@ async def websocket_endpoint(websocket: WebSocket):
             # Handle incoming command messages
             try:
                 command_message = await websocket_manager.handle_incoming_message(websocket, data)
-                # TODO: Forward command to command handler service
-                print(f"Received command: {command_message.command}")
+                # Forward command to simulator (command_message is already a Command object)
+                await simulator.handle_command(command_message)
                 
             except Exception as e:
                 print(f"Error handling message: {e}")

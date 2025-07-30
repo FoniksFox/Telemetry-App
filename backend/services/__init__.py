@@ -9,5 +9,6 @@ Contains business logic services:
 """
 
 from .websocket_manager import websocket_manager
+from .simulator import simulator
 
-__all__ = ["websocket_manager"]
+__all__ = ["websocket_manager", "simulator"]
