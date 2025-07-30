@@ -1,8 +1,19 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
+import logging
 from dotenv import load_dotenv
+from typing import Optional
+from datetime import datetime
+from models.telemetry import GenericMessage
+from models.configuration import HistoricalDataQuery, HistoricalDataResponse
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+from services.websocket_manager import websocket_manager
 
 # Load environment variables
 load_dotenv()
@@ -26,19 +37,70 @@ app.add_middleware(
 async def health_check():
     return {
         "status": "healthy",
-        "message": "Telemetry backend is running"
+        "message": "Telemetry backend is running",
+        "active_connections": websocket_manager.get_connection_count()
     }
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
+    await websocket_manager.connect(websocket)
     try:
         while True:
-            # For now, just echo messages back
+            # Receive message from client
             data = await websocket.receive_text()
-            await websocket.send_text(f"Echo: {data}")
+            
+            # Handle incoming command messages
+            try:
+                command_message = await websocket_manager.handle_incoming_message(websocket, data)
+                # TODO: Forward command to command handler service
+                print(f"Received command: {command_message.command}")
+                
+            except Exception as e:
+                print(f"Error handling message: {e}")
+                # Error response is already sent by websocket_manager
+                
     except WebSocketDisconnect:
+        websocket_manager.disconnect(websocket)
         print("Client disconnected")
+
+@app.get("/historical-data")
+async def get_historical_data(
+    limit: Optional[int] = Query(None, description="Maximum number of messages to return"),
+    type: Optional[str] = Query(None, description="Filter by message type"),
+    id: Optional[str] = Query(None, description="Filter by message ID"),
+    since: Optional[str] = Query(None, description="ISO timestamp - only return messages after this time"),
+    until: Optional[str] = Query(None, description="ISO timestamp - only return messages before this time")
+) -> Optional[HistoricalDataResponse]:
+    """
+    Get historical telemetry data with optional filtering.
+    Returns a list of telemetry messages (a HistoricalDataResponse) based on the provided filters, or None if there is an error.
+    """
+    since_datetime = None
+    if since:
+        try:
+            since_datetime = datetime.fromisoformat(since.replace('Z', '+00:00'))
+        except ValueError:
+            logger.error("Invalid timestamp format for 'since'. Use ISO format.")
+            return None
+
+    until_datetime = None
+    if until:
+        try:
+            until_datetime = datetime.fromisoformat(until.replace('Z', '+00:00'))
+        except ValueError:
+            logger.error("Invalid timestamp format for 'until'. Use ISO format.")
+            return None
+
+    query = HistoricalDataQuery(
+        limit=limit,
+        type=type,
+        id=id,
+        from_timestamp=since_datetime.isoformat() if since_datetime else None,
+        to_timestamp=until_datetime.isoformat() if until_datetime else None
+    )
+    historical_data = websocket_manager.get_historical_data(query)
+    
+    return historical_data
 
 if __name__ == "__main__":
     host = os.getenv("HOST", "localhost")
