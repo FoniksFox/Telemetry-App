@@ -40,7 +40,7 @@ class CommandResultMessage(BaseModel):
     type: str = "message"
     id: str = "command_result"
     value: CommandResult
-    timestamp: datetime
+    timestamp: datetime = Field(default_factory=datetime.now)  # When result was generated
     
     class Config:
         json_encoders = {
