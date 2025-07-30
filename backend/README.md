@@ -10,14 +10,14 @@ This backend acts as a bridge between telemetry data sources (currently a simula
 
 - **Modular Design**: Easy replacement of simulator with real telemetry systems
 - **Unified Data Flow**: All data (telemetry + command confirmations + other notifications from the device) flows through WebSocket as individual messages
-- **Configuration Separation**: Static templates served via HTTP, real-time data via WebSocket
+- **Dynamic Configuration**: Device-driven configuration templates served via HTTP, real-time data via WebSocket
 - **Persistent Logging**: Historical data maintained in memory as a log, not a temporary buffer
 
 ## Technology Stack
 
 - **Framework:** FastAPI (WebSocket + HTTP support)
 - **Data Simulation:** Custom simulator module (hot-swappable)
-- **Configuration:** JSON-based templates
+- **Configuration:** Dynamic device-driven configuration
 - **Async Support:** asyncio for concurrent connections
 
 ## Project Structure
@@ -33,14 +33,7 @@ backend/
 ├── services/                       # Business logic services
 │   ├── simulator.py                # Telemetry data simulator
 │   ├── websocket_manager.py        # WebSocket connection management
-│   ├── configuration_manager.py    # Dynamic configuration management
-│   └── command_handler.py          # Command processing and forwarding
-├── utils/                          # Utility functions
-│   ├── data_generator.py           # Data generation utilities
-│   └── validators.py               # Data validation utilities
-├── config/                         # Configuration files
-│   ├── telemetry_types.json        # Default telemetry type definitions
-│   └── command_templates.json      # Default command templates
+│   └── configuration_manager.py    # Dynamic configuration management & validation
 ├── tests/                          # Test suite
 │   ├── test_websocket.py
 │   ├── test_simulator.py
@@ -50,43 +43,41 @@ backend/
 
 ## Core Components & Data Flow
 
-1. **Simulator Service** - Generates mock telemetry data and handles command execution
-2. **WebSocket Manager** - Manages client connections and real-time message broadcasting
-3. **Configuration Manager** - Serves telemetry types and command templates
-4. **Command Handler** - Processes and forwards commands to simulator/device
+1. **FastAPI App** - Handles endpoints, both webSockets and HTTPS for
+2. **Simulator Service** - Generates mock telemetry data and handles command execution
+3. **WebSocket Manager** - Manages client connections and real-time message broadcasting (both incoming commands and outgoing telemetry data)
+4. **Configuration Manager** - Provides dynamic device-driven configuration and validation services
 
 **Message Flow:**
 
 ```mermaid
 graph TD
-
-    subgraph "Backend"
-        Sim[Simulator]
+    subgraph Backend
+        App[FastAPI App]
         WS[WebSocket Manager]
-        CH[Command Handler]
         CM[Config Manager]
+        Sim[Simulator]
     end
 
-    subgraph "Frontend"
-        Front[Frontend Server]
+    subgraph Frontend
+        Front[Frontend Client]
     end
   
-    %% Real-time data
-    Sim -->|telemetry data| WS
-    WS -->|telemetry data| Front
+    %% Config Data Flow
+    Front ==>|HTTP Config| App
+    App ==>|Configuration| CM
+    Sim ==>|register| CM
+
+    %% Commands Data Flow
+    App -.->|command| WS
+    Front -.->|WebSocket Commands| App
+    WS -.->|validate command| CM
+    WS -.->|execute command| Sim
   
-    %% Commands
-    Front -->|commands| WS
-    WS -->|commands| CH
-    CH -->|commands| Sim
-  
-    %% Command confirmations (as telemetry)
-    Sim -.->|confirmations| WS
-    WS -.->|confirmations| Front
-  
-    %% Configuration
-    Front <==>|HTTP Request| CM
-    Sim ==>|templates| CM
+    %% Telemetry Data Flow
+    App -->|WebSocket Telemetry| Front
+    Sim -->|telemetry| WS
+    WS -->|broadcast| App
 ```
 
 ## API Design
@@ -102,6 +93,8 @@ graph TD
 - `GET /health` - Service status
 - `GET /telemetry-types` - Available telemetry type definitions
 - `GET /command-templates` - Available command schemas
+- `GET /command-validation/{command_id}` - Validation info for specific command
+- `GET /config-summary` - Configuration summary and device status
 - `GET /historical-data` - Query historical telemetry log
 
 ## Design Decisions
@@ -126,12 +119,13 @@ graph TD
 
 ### Configuration Architecture
 
-**HTTP for templates, WebSocket for data**:
+**Dynamic device-driven configuration**:
 
-- Static configuration doesn't need real-time updates
-- Reduces WebSocket message overhead
-- Clear separation of concerns
-- Standard REST patterns for configuration
+- Devices/simulators register their capabilities on startup
+- Configuration templates generated dynamically from device capabilities
+- No static JSON configuration files needed
+- Real-time validation against device-specific schemas
+- Support for future translator/adapter patterns between different device types
 
 ### Historical Data as Log
 
@@ -147,15 +141,17 @@ graph TD
 The simulator is designed for easy replacement with real telemetry systems:
 
 1. **Interface Compatibility**: Replace `simulator.py` while maintaining the same API
-2. **Configuration Source**: Update template loading to read from real system schemas
-3. **Command Interface**: Modify command handler to communicate with actual devices
-4. **Data Format**: Ensure real system outputs match the established message format
+2. **Dynamic Registration**: Real devices register their capabilities on connection
+3. **Command Interface**: Commands validated and forwarded through the same WebSocket flow
+4. **Adapter Pattern**: Configuration manager can host translators between different device protocols
+5. **Data Format**: Ensure real system outputs match the established message format
 
 Real systems should provide:
 
+- Capability registration defining available telemetry types and commands
 - Telemetry data in the established format
-- Configuration templates defining available data types on connection
-- Command schemas and confirmation mechanisms on connection
+- Command handling with appropriate confirmations
+- Device-specific validation schemas
 
 ## Development Environment
 
@@ -164,6 +160,14 @@ Real systems should provide:
 **Testing**: pytest for unit tests, WebSocket test utilities included
 
 ## Notes and Reflections
+
+**July 31, 2025 - Dynamic configuration & Architecture simplifications**
+Decided to use dynamic configuration schemas, provided by the device on connection, for better compatibility with different devices in the future. This provides greater flexibility than the static files approach, and provides a way of changing specifications without needing to touch the webapp.
+Also eliminated some planned scripts and services that became unnecessary, either because the specifications changed, or because their purpose was absorbed by other parts of the backend:
+
+- Removed `command_handler.py` - commands now validated and forwarded directly by the server
+- Removed `utils/` directory - validation integrated into Configuration Manager, data generation handled by Simulator
+- Removed `config/` directory - dynamic configuration eliminates need for static JSON files
 
 *This section will be updated throughout the development process with insights, challenges, and solutions discovered during implementation.*
 
