@@ -3,7 +3,6 @@ import random
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
-import json
 
 from models.telemetry import TelemetryMessage, CommandResultMessage, GenericMessage
 from models.commands import Command, CommandResult, CommandStatus
@@ -63,6 +62,10 @@ class TelemetrySimulator:
             
         self.is_running = True
         self.simulation_task = asyncio.create_task(self._simulation_loop())
+        
+        # Register configuration with config manager
+        await self._register_device_configuration()
+        
         logger.info("Telemetry simulator started")
         
     async def stop(self) -> None:
@@ -77,7 +80,19 @@ class TelemetrySimulator:
                 await self.simulation_task
             except asyncio.CancelledError:
                 pass
+        
+        # Unregister configuration
+        await self._unregister_device_configuration()
+        
         logger.info("Telemetry simulator stopped")
+    
+    async def _unregister_device_configuration(self) -> None:
+        """Unregister this simulator's configuration from the configuration manager."""
+        # Import here to avoid circular dependency
+        from services.configuration_manager import config_manager
+        
+        config_manager.unregister_device("telemetry_simulator")
+        logger.info("Simulator configuration unregistered")
         
     async def _simulation_loop(self) -> None:
         """Main simulation loop that generates and sends telemetry data."""
@@ -106,6 +121,104 @@ class TelemetrySimulator:
         except Exception as e:
             logger.error(f"Error in simulation loop: {e}")
             self.is_running = False
+    
+    async def _register_device_configuration(self) -> None:
+        """Register this simulator's configuration with the configuration manager."""
+        # Import here to avoid circular dependency
+        from services.configuration_manager import config_manager
+        
+        # Define telemetry types based on our sensors
+        telemetry_types = {
+            "temperature": {
+                "unit": "°C",
+                "data_type": "float",
+                "range": {"min": 18.0, "max": 35.0},
+                "description": "Ambient temperature sensor reading"
+            },
+            "pressure": {
+                "unit": "hPa", 
+                "data_type": "float",
+                "range": {"min": 980.0, "max": 1050.0},
+                "description": "Atmospheric pressure measurement"
+            },
+            "humidity": {
+                "unit": "%",
+                "data_type": "float", 
+                "range": {"min": 20.0, "max": 80.0},
+                "description": "Relative humidity percentage"
+            },
+            "system_status": {
+                "unit": None,
+                "data_type": "string",
+                "enum": ["operational", "warning", "error", "maintenance"],
+                "description": "Current system operational status"
+            }
+        }
+        
+        # Define command templates based on our supported commands
+        command_templates = {
+            "set_update_interval": {
+                "command": "set_update_interval",
+                "parameters": {
+                    "interval": {
+                        "type": "float",
+                        "required": True,
+                        "description": "Update interval in seconds (0.1 to 60.0)"
+                    }
+                },
+                "description": "Change the telemetry data update frequency"
+            },
+            "reset_sensors": {
+                "command": "reset_sensors", 
+                "parameters": {},
+                "description": "Reset all sensors to their default calibrated values"
+            },
+            "set_sensor_value": {
+                "command": "set_sensor_value",
+                "parameters": {
+                    "sensor_id": {
+                        "type": "string",
+                        "required": True,
+                        "enum": ["temperature", "pressure", "humidity", "system_status"],
+                        "description": "The ID of the sensor to modify"
+                    },
+                    "value": {
+                        "type": "string",
+                        "required": True,
+                        "description": "New value for the sensor"
+                    }
+                },
+                "description": "Set a specific sensor to a specific value"
+            },
+            "get_status": {
+                "command": "get_status",
+                "parameters": {},
+                "description": "Get current simulator status and sensor values"
+            },
+            "calibrate_sensors": {
+                "command": "calibrate_sensors",
+                "parameters": {
+                    "duration": {
+                        "type": "float",
+                        "required": False,
+                        "description": "Calibration duration in seconds (1.0 to 30.0, default 5.0)"
+                    }
+                },
+                "description": "Perform sensor calibration - long-running operation"
+            }
+        }
+        
+        # Register with configuration manager
+        success = config_manager.register_device_configuration(
+            telemetry_types=telemetry_types,
+            command_templates=command_templates,
+            device_id="telemetry_simulator"
+        )
+        
+        if success:
+            logger.info("Simulator configuration registered successfully")
+        else:
+            logger.error("Failed to register simulator configuration")
             
     def _generate_sensor_data(self, sensor_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
         """Generate mock data for a sensor based on its configuration."""

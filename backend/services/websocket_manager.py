@@ -85,7 +85,22 @@ class WebSocketManager:
             # Create CommandMessage object
             command_message = CommandMessage(**data)
             
-            logger.info(f"Received command: {command_message.command} with parameters: {command_message.parameters}")
+            # Validate command against registered templates
+            from services.configuration_manager import config_manager
+            is_valid, error_msg = config_manager.validate_command(
+                command_message.command, 
+                command_message.parameters
+            )
+            
+            if not is_valid:
+                logger.warning(f"Invalid command received: {error_msg}")
+                await self.send_personal_message(
+                    json.dumps({"error": f"Command validation failed: {error_msg}"}), 
+                    websocket
+                )
+                raise ValueError(f"Command validation failed: {error_msg}")
+            
+            logger.info(f"Received valid command: {command_message.command} with parameters: {command_message.parameters}")
             
             return command_message
             

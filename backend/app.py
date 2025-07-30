@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 from services.websocket_manager import websocket_manager
 from services.simulator import simulator
+from services.configuration_manager import config_manager
 
 # Load environment variables
 load_dotenv()
@@ -119,6 +120,29 @@ async def get_historical_data(
     historical_data = websocket_manager.get_historical_data(query)
     
     return historical_data
+
+@app.get("/telemetry-types")
+async def get_telemetry_types():
+    """Get available telemetry type definitions."""
+    return config_manager.get_telemetry_types()
+
+@app.get("/command-templates")
+async def get_command_templates():
+    """Get available command templates."""
+    return config_manager.get_command_templates()
+
+@app.get("/config-summary")
+async def get_configuration_summary():
+    """Get a summary of the current configuration state."""
+    return config_manager.get_configuration_summary()
+
+@app.get("/command-validation/{command_id}")
+async def get_command_validation_info(command_id: str):
+    """Get validation information for a specific command."""
+    try:
+        return config_manager.get_command_template(command_id)
+    except KeyError:
+        return {"error": f"Command '{command_id}' not found"}
 
 if __name__ == "__main__":
     host = os.getenv("HOST", "localhost")
