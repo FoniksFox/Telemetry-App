@@ -62,7 +62,7 @@ class HistoricalDataQuery(BaseModel):
     """Query parameters for historical data requests."""
     id: Optional[str] = None  # Filter by telemetry ID, if applicable (e.g., "temperature", "command_confirmation")
     type: Optional[str] = None  # Filter by message type (e.g., "data")
-    limit: int = 1000  # Maximum records to return
+    limit: Optional[int] = 1000  # Maximum records to return
     from_timestamp: Optional[str] = None  # ISO timestamp, defaults to first record
     to_timestamp: Optional[str] = None  # ISO timestamp, defaults to last record
 
