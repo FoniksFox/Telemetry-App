@@ -13,11 +13,6 @@ class TelemetryMessage(BaseModel):
     id: str  # Sensor/telemetry identifier (e.g., "temperature", "pressure")
     value: Union[int, float, str, bool, List, Dict]  # Flexible value types
     timestamp: datetime
-    
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
 
 
 class CommandMessage(Command):
@@ -28,11 +23,6 @@ class CommandMessage(Command):
     type: Literal["command"] = "command"
     timestamp: datetime = Field(default_factory=datetime.now)  # When command was received
     
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
-    
 class CommandResultMessage(BaseModel):
     """
     Command result as telemetry message.
@@ -41,11 +31,6 @@ class CommandResultMessage(BaseModel):
     id: str = "command_result"
     value: CommandResult
     timestamp: datetime = Field(default_factory=datetime.now)  # When result was generated
-    
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
 
 class DeviceMessage(BaseModel):
     """
@@ -55,11 +40,6 @@ class DeviceMessage(BaseModel):
     id: str  # Type of message (e.g., "device_status", "device_data", "log", etc.)
     value: Dict[str, Any]  # Device-specific data
     timestamp: datetime
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
 
 class GenericMessage(RootModel):
     """
