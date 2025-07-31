@@ -1,10 +1,7 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
-from typing import Optional, Dict, Any, List, Literal, Union, TYPE_CHECKING
+from pydantic import BaseModel
+from typing import Optional, Dict, List, Union
 from enum import Enum
-
-if TYPE_CHECKING:
-    from .telemetry import GenericMessage
+from .telemetry import GenericMessage
 
 
 class DataType(str, Enum):
@@ -69,6 +66,6 @@ class HistoricalDataQuery(BaseModel):
 
 class HistoricalDataResponse(BaseModel):
     """Response format for GET /historical-data endpoint."""
-    data: List["GenericMessage"]  # List of telemetry messages
+    data: List[GenericMessage]  # List of telemetry messages
     total_records: int
     filtered_records: int
