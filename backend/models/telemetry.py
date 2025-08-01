@@ -11,7 +11,7 @@ class TelemetryMessage(BaseModel):
     """
     type: Literal["data"] = "data"
     id: str  # Sensor/telemetry identifier (e.g., "temperature", "pressure")
-    value: Union[int, float, str, bool, List, Dict]  # Flexible value types
+    value: Union[int, float, str, bool, List, Dict[str, Any]]  # Flexible value types
     timestamp: datetime
 
 
