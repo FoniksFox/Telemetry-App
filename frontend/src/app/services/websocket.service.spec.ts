@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { NgZone } from '@angular/core';
 import { WebSocketService } from './websocket.service';
 import { ConnectionState } from '../models/connection.interface';
-import { TelemetryMessage } from '../models/telemetry.interface';
 import { environment } from '../../environments/environment';
 
 // Mock WebSocket class
@@ -222,7 +221,7 @@ describe('WebSocketService', () => {
         });
 
         it('should send messages successfully', () => {
-            const testMessage: TelemetryMessage = {
+            const testMessage = {
                 type: 'data',
                 id: 'test-sensor',
                 value: 42,
@@ -247,7 +246,7 @@ describe('WebSocketService', () => {
                 done();
             });
 
-            const testMessage: TelemetryMessage = {
+            const testMessage = {
                 type: 'data',
                 id: 'test-sensor',
                 value: 42,
@@ -258,7 +257,7 @@ describe('WebSocketService', () => {
         });
 
         it('should receive and parse messages correctly', (done) => {
-            const testMessage: TelemetryMessage = {
+            const testMessage = {
                 type: 'data',
                 id: 'temperature',
                 value: 23.5,
@@ -266,25 +265,27 @@ describe('WebSocketService', () => {
             };
 
             service.getMessages().subscribe(message => {
-                expect(message).toEqual(testMessage);
+                // Now we expect the raw JSON string, not the parsed object
+                expect(message).toEqual(JSON.stringify(testMessage));
                 done();
             });
 
             mockWebSocket.simulateMessage(testMessage);
         });
 
-        it('should handle malformed messages', (done) => {
-            service.getErrors().subscribe(error => {
-                expect(error.type).toBe('validation');
-                expect(error.message).toContain('parse');
-                expect(error.recoverable).toBe(true);
+        it('should pass through malformed messages without parsing', (done) => {
+            const malformedData = 'invalid json {';
+            
+            service.getMessages().subscribe(message => {
+                // The service should now pass through raw data without parsing
+                expect(message).toBe(malformedData);
                 done();
             });
 
-            // Simulate invalid JSON
+            // Simulate invalid JSON - should be passed through as-is
             if (mockWebSocket.onmessage) {
                 mockWebSocket.onmessage(new MessageEvent('message', { 
-                    data: 'invalid json {' 
+                    data: malformedData 
                 }));
             }
         });

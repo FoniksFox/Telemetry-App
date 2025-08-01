@@ -10,7 +10,6 @@ import {
     ConnectionState,
     ConnectionError
 } from '../models/connection.interface';
-import { GenericMessage } from '../models/telemetry.interface';
 import { BehaviorSubject, Observable, Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -28,7 +27,7 @@ export class WebSocketService {
         url: environment.websocketUrl,
         ...environment.websocket
     };
-    private messages$ = new Subject<GenericMessage>();
+    private messages$ = new Subject<string>();
     private errors$ = new Subject<ConnectionError>();
     private destroy$ = new Subject<void>();
     private connectionTimeout: any;
@@ -46,8 +45,9 @@ export class WebSocketService {
 
     /**
      * Get incoming messages as an Observable.
+     * Returns raw string messages that need to be parsed by the calling service.
      */
-    getMessages(): Observable<GenericMessage> {
+    getMessages(): Observable<string> {
         return this.messages$.asObservable();
     }
 
@@ -222,8 +222,9 @@ export class WebSocketService {
 
     /**
      * Send a message through the WebSocket.
+     * Accepts any object that can be JSON stringified.
      */
-    sendMessage(message: GenericMessage): void {
+    sendMessage(message: any): void {
         if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
             const error: ConnectionError = {
                 type: 'websocket',
@@ -295,25 +296,11 @@ export class WebSocketService {
         };
 
         this.socket.onmessage = (event) => {
-            try {
-                const message: GenericMessage = JSON.parse(event.data);
-                console.log('Received message:', message);
-                this.ngZone.run(() => {
-                    this.messages$.next(message);
-                });
-                
-            } catch (error) {
-                const connectionError: ConnectionError = {
-                    type: 'validation',
-                    message: 'Failed to parse incoming message',
-                    timestamp: new Date(),
-                    details: error,
-                    recoverable: true
-                };
-                this.ngZone.run(() => {
-                    this.handleConnectionError(connectionError);
-                });
-            }
+            // Just pass the raw data string - let the calling service handle parsing and validation
+            console.log('Received raw message:', event.data);
+            this.ngZone.run(() => {
+                this.messages$.next(event.data);
+            });
         };
 
         this.socket.onerror = (event) => {
