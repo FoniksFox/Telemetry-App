@@ -92,7 +92,7 @@ class TestWebSocketManager:
             description="A test command",
             parameters={
                 "param1": CommandParameter(
-                    type="number",
+                    type="int",
                     required=True,
                     description="Test parameter"
                 )
@@ -127,7 +127,7 @@ class TestWebSocketManager:
             description="A test command",
             parameters={
                 "required_param": CommandParameter(
-                    type="number",
+                    type="int",
                     required=True,
                     description="Required parameter"
                 )

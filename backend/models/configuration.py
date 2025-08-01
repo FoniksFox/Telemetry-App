@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Dict, List, Union
+from typing import Optional, Dict, List, Union, Literal
 from enum import Enum
 from .telemetry import GenericMessage
 
@@ -28,10 +28,11 @@ class TelemetryTypeConfig(BaseModel):
 
 class CommandParameter(BaseModel):
     """Configuration for a command parameter."""
-    type: str  # "string", "float", "int", "boolean"
+    type: Literal["string", "float", "int", "boolean"]
     required: bool = True
     enum: Optional[List[Union[str, int, float]]] = None  # Valid values for the parameter
     description: Optional[str] = None
+    default: Optional[Union[str, int, float, bool]] = None  # Default value for the parameter if not required
 
 
 class CommandTemplate(BaseModel):
@@ -59,7 +60,7 @@ class HistoricalDataQuery(BaseModel):
     """Query parameters for historical data requests."""
     id: Optional[str] = None  # Filter by telemetry ID, if applicable (e.g., "temperature", "command_confirmation")
     type: Optional[str] = None  # Filter by message type (e.g., "data")
-    limit: Optional[int] = 1000  # Maximum records to return
+    limit: Optional[int] = None  # Maximum records to return
     from_timestamp: Optional[str] = None  # ISO timestamp, defaults to first record
     to_timestamp: Optional[str] = None  # ISO timestamp, defaults to last record
 
