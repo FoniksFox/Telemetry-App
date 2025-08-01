@@ -4,12 +4,12 @@ Angular frontend application for real-time telemetry data visualization and moni
 
 ## Overview
 
-This is the frontend component of the Telemetry-App project, built with Angular 17+ and designed to display real-time telemetry data through interactive charts and dashboards. The application connects to a Python backend via WebSocket for live data streaming.
+This is the frontend component of the Telemetry-App project, built with Angular 20.1.0+ and designed to display real-time telemetry data through interactive charts and dashboards. The application connects to a Python backend via WebSocket for live data streaming.
 
 ## Technology Stack
 
-- **Framework:** Angular 17+
-- **Language:** TypeScript 5.0+
+- **Framework:** Angular 20.1.0+
+- **Language:** TypeScript 5.8.2+
 - **Styling:** SCSS + Angular Material
 - **Charts:** Chart.js with ng2-charts
 - **HTTP Client:** Angular HttpClient
@@ -46,6 +46,8 @@ src/
 │   │   ├── pipes/                      # Custom pipes
 │   │   └── directives/                 # Custom directives
 │   ├── environments/                   # Environment configurations
+│   │   ├── environment.ts              # Development configuration
+│   │   └── environment.prod.ts         # Production configuration
 │   └── assets/                         # Static assets
 ├── styles/                             # Global styles
 │   ├── _variables.scss                 # SCSS variables
