@@ -30,13 +30,14 @@ src/
 │   ├── services/                       # Angular services
 │   │   ├── websocket.service.ts        # WebSocket communication
 │   │   ├── buffer.service.ts           # Data buffer
-│   │   ├── connection.service.ts       # Interface for all connection-related matter
+│   │   ├── connection.service.ts       # Interface for all connection-related matters
 │   │   ├── configuration.service.ts    # Dynamic telemetry and command configurations
 │   │   └── command.service.ts          # Sending dynamic commands to backend
 │   ├── models/                         # TypeScript interfaces
 │   │   ├── telemetry.interface.ts      # Data models
 │   │   ├── configuration.interface.ts  # Dynamic configuration models
-│   │   └── chart-config.interface.ts
+│   │   ├── connection.interface.ts     # Models for connection related matters
+│   │   └── chart-config.interface.ts   # Configuration interface for charts
 │   ├── pages/                          # Route components
 │   │   ├── dashboard/                  # Main dashboard page
 │   │   ├── historical/                 # Historical data view
@@ -98,8 +99,6 @@ src/
 - **WebSocketService** - Handles WebSocket connection and real-time data streaming
 - **BufferService** - Acts as a buffer for data, to avoid unnecessary calls to the backend, and have faster response (no downtime waiting, most times at least)
 - **ConnectionService** - An interface for all connection-related inquiries by other components
-- **ConfigurationService** - Manages dynamic telemetry types and command configurations received from backend
-- **CommandService** - Handles sending dynamic commands to the backend based on received command configuration
 
 ## Data Models
 
@@ -121,7 +120,7 @@ Key TypeScript interfaces and models are defined in the `/src/app/models/` direc
 ```mermaid
 graph TD
     subgraph "Backend"
-        Back[Backend WebSocket Server]
+        Back[Backend WebSocket Server && HTTP Requests]
     end
     
     subgraph "Angular Frontend Services"
@@ -255,6 +254,10 @@ ng build --configuration production
 *Will host sections explaining all the decisions made in the process and why were they made*
 
 ## Notes and Reflections
+
+**August 01, 2025 - Models and Websocket Service**
+Set up the models for telemetry and configuration, basically a copy of the backend models, and the models for everything needed in the connection managing.
+Implemented the websocket service. It has a decoupled logic to make it completely modular and easy to debug. Business logic will be handled by the Connection service.
 
 *This section will be updated throughout the development process with insights, challenges, and solutions discovered during implementation.*
 
