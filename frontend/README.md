@@ -79,34 +79,81 @@ src/
 - [X] Dynamic command interface based on backend configuration
 - [X] Real-time validation of telemetry data based on received schemas
 - [X] Data buffering
+- [ ] Color settings for the dashboard (including palettes and custom colors)
 
 ## Components Architecture
 
 ### Core Components
 
 - **DashboardComponent** - Main dashboard container and layout
-- **ChartComponent** - Reusable and configurable chart component for different chart types
-- **ConsoleComponent** - Reusable and configurable console
-- **DynamicButtonComponent** - Dynamically generated button components based on command configuration from backend
+- **ListComponent** - Layout component that holds other components
+- **ChartComponent** - Configurable chart component for different chart types
+- **DisplayComponent** - Displays the current value of a variable
+- **ConsoleComponent** - Configurable console
+- **DynamicButtonComponent** - Dynamically generated and configurable button components based on command configuration from backend
 - **ConfigurationComponent** - Displays and manages the dynamic telemetry and command configurations
 - **HeaderComponent** - Application header with navigation and controls
 - **SidebarComponent** - Navigation sidebar for different views
 
-### Services
+**There's the possibility of adding a GridCompoment in the future, wich would just create a grid of components inside a ListComponent*
+
+### Layout
+
+- **Top Layout**
+  - HeaderComponent
+  - SidebarComponent
+  - **DashboardComponent**
+    - Pinned LisComponent - Appears directly underneath the Header
+    - ListComponent 1
+      - Other data-related components
+    - ListComponent 2
+    - ListComponent 3
+
+### Layout Characteristics
+
+**This will be implemented via Angular Material's CDK Drag & Drop*
+
+#### **Hierarchy & Structure**
+
+- **DashboardComponent** manages overall layout with multiple **ListComponents**
+- Each **ListComponent** contains other components with strict horizontal OR vertical layout
+- **No nested lists** - Lists cannot contain other lists (prevents complexity)
+- **Auto-list creation** - Adding a component directly creates a specialized list for that component type
+
+#### **Component Sizing & Constraints**
+
+- **Vertical lists**: Components take full horizontal space, resizable vertically (with minimum size)
+- **Horizontal lists**: Components take full vertical space, resizable horizontally (with minimum size)
+- **Inner scrolling** when components exceed list boundaries
+- **Grid-snapping** for precise positioning and alignment
+
+#### **Advanced Layout Features**
+
+- **List Grouping**: Edges can be 'glued' together for synchronized resizing
+- **List Minimization**: Close lists while preserving content for later reconstruction
+- **List Pinning**: Pin lists to appear permanently under the header (multiple allowed)
+- **Canvas Mode**: Fixed dashboard size by default, with optional expansion and panning/zooming controls
+
+#### **Responsive Design**
+
+- **Desktop**: Sidebar + flexible dashboard with draggable lists
+- **Mobile**: Topbar replaces sidebar, vertical collapsible lists only
+- **Pinned sections**: Separate unique vertical list for pinned components under header
 
 ### Services
 
 - **WebSocketService** - Pure transport layer for WebSocket communication
-    - Connection management with auto-reconnection
-    - Raw message passing without business logic
-    - Proper error handling and timeout management
 
+  - Connection management with auto-reconnection
+  - Raw message passing without business logic
+  - Proper error handling and timeout management
 - **ConnectionService** - Complete business logic layer
-    - Message parsing, validation, and type filtering
-    - In-memory buffering with configurable size limits
-    - HTTP configuration fetching (telemetry types, command templates)
-    - Command validation with parameter checking
-    - Centralized error management
+
+  - Message parsing, validation, and type filtering
+  - In-memory buffering with configurable size limits
+  - HTTP configuration fetching (telemetry types, command templates)
+  - Command validation with parameter checking
+  - Centralized error management
 - **ConnectionService** - An interface for all connection-related inquiries by other components
 
 ## Data Models
