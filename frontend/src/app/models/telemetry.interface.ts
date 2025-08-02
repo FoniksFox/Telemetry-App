@@ -31,8 +31,7 @@ export interface TelemetryMessage {
 export interface CommandMessage {
     type: 'command';
     command: string;
-    parameters: Record<string, any>;
-    timestamp?: string; // ISO datetime string, optional as backend can set it
+    parameters?: Record<string, any>;
 }
 
 /**

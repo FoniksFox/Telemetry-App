@@ -21,7 +21,7 @@ export interface TelemetryTypeConfig {
  */
 export interface CommandParameter {
     type: "string" | "float" | "int" | "boolean";
-    required?: boolean;
+    required: boolean;
     enum?: (string | number)[]; // Valid values for the parameter
     description?: string;
     default?: any; // Default value for the parameter
