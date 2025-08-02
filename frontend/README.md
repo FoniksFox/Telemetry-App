@@ -28,11 +28,8 @@ src/
 │   │   ├── header/                     # App header
 │   │   └── sidebar/                    # Navigation sidebar
 │   ├── services/                       # Angular services
-│   │   ├── websocket.service.ts        # WebSocket communication
-│   │   ├── buffer.service.ts           # Data buffer
-│   │   ├── connection.service.ts       # Interface for all connection-related matters
-│   │   ├── configuration.service.ts    # Dynamic telemetry and command configurations
-│   │   └── command.service.ts          # Sending dynamic commands to backend
+│   │   ├── websocket.service.ts        # WebSocket communication, decoupled from the business logic
+│   │   └── connection.service.ts       # Interface for all connection-related matters, implements the business logic
 │   ├── models/                         # TypeScript interfaces
 │   │   ├── telemetry.interface.ts      # Data models
 │   │   ├── configuration.interface.ts  # Dynamic configuration models
@@ -62,12 +59,12 @@ src/
 #### Core Features
 
 - [ ] Real-time telemetry dashboard
-- [ ] Dynamic telemetry type configuration from backend
+- [X] Dynamic telemetry type configuration from backend
 - [ ] Multiple data visualization charts (line, bar, gauge)
-- [ ] WebSocket connection for live data updates
+- [X] WebSocket connection for live data updates
 - [ ] Responsive design for different screen sizes
-- [ ] Data filtering and time range selection
-- [ ] Communication between backend and frontend
+- [X] Data filtering and time range selection
+- [X] Communication between backend and frontend
 
 #### Advanced Features (If time permits)
 
@@ -79,8 +76,9 @@ src/
 - [ ] Dark/light theme toggle
 - [ ] Custom chart configurations
 - [ ] Mobile support
-- [ ] Dynamic command interface based on backend configuration
-- [ ] Real-time validation of telemetry data based on received schemas
+- [X] Dynamic command interface based on backend configuration
+- [X] Real-time validation of telemetry data based on received schemas
+- [X] Data buffering
 
 ## Components Architecture
 
@@ -96,15 +94,26 @@ src/
 
 ### Services
 
-- **WebSocketService** - Handles WebSocket connection and real-time data streaming
-- **BufferService** - Acts as a buffer for data, to avoid unnecessary calls to the backend, and have faster response (no downtime waiting, most times at least)
+### Services
+
+- **WebSocketService** - Pure transport layer for WebSocket communication
+    - Connection management with auto-reconnection
+    - Raw message passing without business logic
+    - Proper error handling and timeout management
+
+- **ConnectionService** - Complete business logic layer
+    - Message parsing, validation, and type filtering
+    - In-memory buffering with configurable size limits
+    - HTTP configuration fetching (telemetry types, command templates)
+    - Command validation with parameter checking
+    - Centralized error management
 - **ConnectionService** - An interface for all connection-related inquiries by other components
 
 ## Data Models
 
 Key TypeScript interfaces and models are defined in the `/src/app/models/` directory:
 
-- **TelemetryData** - Core telemetry data structure with timestamp, value, type, and metadata
+- **TelemetryMessage** - Core telemetry data structure
 - **TelemetryConfiguration** - Dynamic configuration received from backend defining available telemetry types, formats, and validation rules
 - **CommandConfiguration** - Dynamic configuration defining available commands that can be sent to the backend
 - **ChartConfig** - Chart configuration including type, data source, and display options
@@ -113,34 +122,30 @@ Key TypeScript interfaces and models are defined in the `/src/app/models/` direc
 ## Connection Architecture
 
 - **WebSocketService** establishes and handles connection to the backend
-- **BufferService** subscribes to WebSocketService and keeps arrays of data (with some size limit)
-- **ConnectionService** subscribes to WebSocketService and gets data either from the buffer or websockets. Sends commands and data via websockets to the backend
-- **Components** request or send data and commands, and subscribe to new data to the ConnectionService. They don't interact with the other two services involved
+- **ConnectionService** subscribes to WebSocketService, validates data and stores a buffer of messages; offering a interface for the rest of components. Sends and validates commands via websockets to the backend
+- **Components** request or send data and commands, and subscribe to new data to the ConnectionService. They don't interact with the WebSocketService directly
 
 ```mermaid
 graph TD
     subgraph "Backend"
-        Back[Backend WebSocket Server && HTTP Requests]
+        Back[Backend WebSocket Server & HTTP Requests]
     end
-    
+  
     subgraph "Angular Frontend Services"
         WS[WebSocketService]
-        BS[BufferService]
         CS[ConnectionService]
     end
-    
+  
     subgraph "UI Components"
         C1[Component1]
         C2[Component2]
         C3[Component3]
     end
-    
+  
     %% Service Layer Flow
     Back <--> WS
-    WS --> BS
     WS <--> CS
-    BS --> CS
-    
+  
     %% Component Layer Flow
     CS <--> C1
     CS <--> C2
@@ -192,7 +197,8 @@ Environment-specific settings are in `/src/environments/`:
 
 - API endpoints and WebSocket URLs
 - Refresh rates and data limits
-- Feature flags for development vs production
+- Chart configuration
+- Logging configuration
 
 ### Proxy Configuration
 
@@ -251,7 +257,14 @@ ng build --configuration production
 
 ## Design Decisions
 
-*Will host sections explaining all the decisions made in the process and why were they made*
+### Connection
+
+Connection managamente sepparated in two services:
+
+- **WebSocketService**: Uncoupled from all the business logic, only handles the websocket connexion
+- **ConnectionService:** Handles all the business logic: subscribes to WebSocketService, makes http calls and provides data validation and buffering. Also provides a handy interface for the rest of components
+
+This provides a clear separation between the connection to the webSocket and the business logic. It could be separated into more services, like a httpClient service, a buffering service, etc. But that would most likely be over-engineered for something this small. Separate services should only be created when the need arises, or the complexity and responsibilities of one service grow too large.
 
 ## Notes and Reflections
 
@@ -259,7 +272,9 @@ ng build --configuration production
 Set up the models for telemetry and configuration, basically a copy of the backend models, and the models for everything needed in the connection managing.
 Implemented the websocket service. It has a decoupled logic to make it completely modular and easy to debug. Business logic will be handled by the Connection service.
 
-*This section will be updated throughout the development process with insights, challenges, and solutions discovered during implementation.*
+**August 02, 2025 - Connection Service**
+Set up the Connection Service, wich provides an interface for the rest of components. Data buffering, data and command validation, as well as http requests have all been implemented in this service. That is, the Connection Service holds all the business logic.
+This way, separation of concerns is enforced, and a clear interface with everything needed is provided via this service.
 
 ## Resources
 
