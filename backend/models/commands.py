@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Literal, List, Union
 from enum import Enum
 
 
@@ -9,13 +9,23 @@ class CommandStatus(str, Enum):
     ERROR = "error"
     PENDING = "pending"
 
+class CommandParameter(BaseModel):
+    """
+    Represents a single command parameter.
+    """
+    type: Literal['string', 'float', 'int', 'boolean']
+    required: bool
+    enum: Optional[List[Union[str, int, float]]]
+    description: Optional[str]
+    default: Optional[Any]
+
 
 class Command(BaseModel):
     """
     Internal command representation after validation.
     """
     command: str
-    parameters: Dict[str, Any]
+    parameters: Optional[List[CommandParameter]] = None  # Command parameters, if any
 
 
 class CommandResult(BaseModel):
