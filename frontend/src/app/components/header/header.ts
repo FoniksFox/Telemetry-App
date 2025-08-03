@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,10 +14,10 @@ import { MatButtonModule } from '@angular/material/button';
 	],
 	template: `
 		<mat-toolbar class="app-header">
-			<button mat-icon-button>
+			<button mat-icon-button (click)="handleToggle()">
 				<mat-icon>menu</mat-icon>
 			</button>
-			<h1 class="header-title text-2xl">Telemetry Dashboard</h1>
+			<h1 class="header-title">{{ title() }}</h1>
 			<span class="spacer"></span>
 			<nav class="nav-links">
 				<a mat-icon-button routerLink="/"><mat-icon>home</mat-icon></a>
@@ -34,6 +34,7 @@ import { MatButtonModule } from '@angular/material/button';
 			background-color: var(--mat-sys-surface-container-highest);
 			color: var(--mat-sys-on-surface);
 			border-bottom: 1px solid var(--mat-sys-outline);
+			padding-left: 4px;
 		}
 		.header-title {
 			font-weight: 500;
@@ -52,4 +53,17 @@ import { MatButtonModule } from '@angular/material/button';
 		}
 	`
 })
-export class Header {}
+export class Header {
+	// Input property to receive the toggle function from parent
+	onToggleSidebar = input<() => void>();
+	
+	title = input<string>();
+	
+	// Method to handle the toggle button click
+	handleToggle(): void {
+		const toggleFn = this.onToggleSidebar();
+		if (toggleFn) {
+			toggleFn();
+		}
+	}
+}
