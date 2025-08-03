@@ -323,6 +323,10 @@ Implemented the websocket service. It has a decoupled logic to make it completel
 Set up the Connection Service, wich provides an interface for the rest of components. Data buffering, data and command validation, as well as http requests have all been implemented in this service. That is, the Connection Service holds all the business logic.
 This way, separation of concerns is enforced, and a clear interface with everything needed is provided via this service.
 
+**August 03, 2025 - Top Layout**
+Set up Angular Material and created the Header component and Sidebar component with mat components. The sidebar accepts a list of 'actions' to be displayed in the sidebar. This way, the Sidebar is a completely modular component. The header component needs an update to make it completely modular (make the routes and icons be accepted as an input), I just didn't do it yet.
+The dashboard is just a grid for now to test dashboardComponents until the dahboard logic is done.
+
 ## Resources
 
 - [Angular Documentation](https://angular.io/docs)
