@@ -1,3 +1,19 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+@use '@angular/material' as mat;
+
+html {
+    @include mat.theme((
+        color: (
+            primary: mat.$azure-palette,
+            tertiary: mat.$blue-palette,
+        ),
+        typography: Roboto,
+        density: 0,
+    ));
+}
+
 /* CSS Reset */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -17,70 +33,46 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    font-family: var(--font-family);
-    line-height: 1.6;
-    background-color: var(--background-color);
-    color: var(--text-primary);
+    
+    /* Use Material Design tokens directly */
+    background-color: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    font: var(--mat-sys-body-medium);
+    color-scheme: light dark;
 
-    /* Prevent text selection */
+    /* Prevent text selection on UI elements */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
 }
 
-/* Global Variables */
+/* Custom Variables for things Material doesn't provide */
 :root {
-    /* Typography */
-    --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-weight-normal: 400;
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
-    --line-height-tight: 1.25;
-    --line-height-normal: 1.5;
-    --line-height-relaxed: 1.75;
+    /* Typography additions */
+    --font-size-xs: 0.75rem;        /* Material doesn't have xs */
+    --font-size-2xl: 1.5rem;        /* Material doesn't have 2xl */
     
-    /* Colors - Light Theme */
-    --primary-color: #2196f3;
-    --secondary-color: #00ffea;
-    --surface-color: #ffffff;
-    --background-color: #f5f5f5;
-    --outline-color: #e0e0e0;
-    --text-primary: #212121;
-    --text-secondary: #757575;
-    --success-color: #4caf50;
-    --warning-color: #ff9800;
-    --error-color: #f44336;
-    
-    /* Spacing */
+    /* Extended spacing scale */
     --spacing-0: 0;
     --spacing-px: 1px;
-    --spacing-2xs: 0.125rem;
-    --spacing-xs: 0.25rem;
-    --spacing-2sm: 0.375rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
+    --spacing-2xs: 0.125rem;        /* 2px */
+    --spacing-xs: 0.25rem;          /* 4px */
+    --spacing-2sm: 0.375rem;        /* 6px */
+    --spacing-sm: 0.5rem;           /* 8px */
+    --spacing-md: 1rem;             /* 16px */
+    --spacing-lg: 1.5rem;           /* 24px */
+    --spacing-xl: 2rem;             /* 32px */
+    --spacing-2xl: 3rem;            /* 48px */
     
-    /* Layout */
-    --border-radius: 8px;
+    /* Custom border radius */
     --border-radius-sm: 4px;
+    --border-radius: 8px;
     --border-radius-lg: 12px;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.1);
-    --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
     
-    /* Animation */
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.2s ease;
-    --transition-slow: 0.3s ease;
+    /* Animation timing */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 375ms cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Z-index scale */
     --z-dropdown: 1000;
@@ -92,48 +84,38 @@ body {
     --z-tooltip: 1070;
     --z-toast: 1080;
 
-    /* Focus styles */
-    --focus-ring: 0 0 0 2px var(--primary-color);
-    --focus-ring-offset: 0 0 0 2px var(--background-color), 0 0 0 4px var(--primary-color);
-}
-    /* Dark Theme Override */
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-        --surface-color: #2e2e2e;
-        --background-color: #1e1e1e;
-        --outline-color: #404040;
-        --text-primary: #ffffff;
-        --text-secondary: #b0b0b0;
-
-        /* Dark-specific adjustments */
-        --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
-        --shadow-md: 0 2px 8px rgba(0,0,0,0.6);
-        --shadow-lg: 0 4px 16px rgba(0,0,0,0.7);
-
-        --primary-color: #64b5f6;  /* Lighter blue */
-        --success-color: #81c784;  /* Lighter green */
-        --error-color: #e57373;    /* Lighter red */
-    }
-}
-    /* User Theme Override */
-[data-theme="dark"] {
-    --surface-color: #2e2e2e;
-    --background-color: #1e1e1e;
-    --outline-color: #404040;
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.6);
-    --shadow-lg: 0 4px 16px rgba(0,0,0,0.7);
-    --primary-color: #64b5f6;
-    --success-color: #81c784;
-    --error-color: #e57373;
+    /* Focus styles using Material colors */
+    --focus-ring: 0 0 0 2px var(--mat-sys-primary);
+    --focus-ring-offset: 0 0 0 2px var(--mat-sys-surface), 0 0 0 4px var(--mat-sys-primary);
 }
 
-
-/* Default Styles */
+/* Headings */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: bold;
+    color: var(--mat-sys-on-surface);
+    font-weight: 600;
+}
+
+/* Links using Material tokens */
+a {
+    color: var(--mat-sys-primary);
+    text-decoration: none;
+    transition: color var(--transition-normal);
+    border-radius: var(--border-radius-sm);
+}
+a:hover {
+    color: var(--mat-sys-primary);
+    opacity: 0.8;
+    text-decoration: underline;
+}
+a:visited {
+    color: var(--mat-sys-tertiary);
+}
+a:active {
+    color: var(--mat-sys-secondary);
+}
+a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
 }
 
 /* Utility Classes */
@@ -186,18 +168,18 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: row;
 }
 
-    /* Input container */
+    /* Input container using Material tokens */
 .input-container {
     display: flex;
     align-items: center;
-    background-color: var(--surface-color);
-    border: 1px solid var(--outline-color);
+    background-color: var(--mat-sys-surface-variant);
+    border: 1px solid var(--mat-sys-outline);
     border-radius: var(--border-radius);
     padding: var(--spacing-sm);
     transition: border-color var(--transition-normal);
 }
 .input-container:focus-within {
-    border-color: var(--primary-color);
+    border-color: var(--mat-sys-primary);
     box-shadow: var(--focus-ring);
 }
 .input-container input {
@@ -206,33 +188,35 @@ h1, h2, h3, h4, h5, h6 {
     background: none;
     padding: var(--spacing-xs);
     font-family: inherit;
-    color: var(--text-primary);
+    color: var(--mat-sys-on-surface);
 }
 .input-container input:focus {
     outline: none;
 }
 .input-container input::placeholder {
-    color: var(--text-secondary);
+    color: var(--mat-sys-on-surface-variant);
 }
 
-    /* Hover effects */
+    /* Hover effects using Material tokens */
 .hover-effect {
     transition: all var(--transition-normal);
     cursor: pointer;
+    border-radius: var(--border-radius-sm);
 }
 .hover-effect:hover {
-    background-color: var(--outline-color);
+    background-color: var(--mat-sys-surface-variant);
     transform: translateY(-1px);
 }
 .hover-effect:active {
     transform: translateY(0);
+    background-color: var(--mat-sys-secondary-container);
 }
 
-    /* Scrollable */
+    /* Scrollable using Material tokens */
 .scrollable {
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: var(--text-secondary) transparent;
+    scrollbar-color: var(--mat-sys-outline) transparent;
 }
 .scrollable::-webkit-scrollbar {
     width: 6px;
@@ -241,13 +225,14 @@ h1, h2, h3, h4, h5, h6 {
     background: transparent;
 }
 .scrollable::-webkit-scrollbar-thumb {
-    background-color: var(--text-secondary);
+    background-color: var(--mat-sys-outline);
     border-radius: var(--border-radius-sm);
     opacity: 0.6;
     transition: opacity var(--transition-normal);
 }
 .scrollable::-webkit-scrollbar-thumb:hover {
     opacity: 1;
+    background-color: var(--mat-sys-primary);
 }
 
     /* Animation utilities */
@@ -294,19 +279,58 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-    /* Typography utilities */
+    /* Typography utilities - only custom sizes */
 .text-xs { font-size: var(--font-size-xs); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-base { font-size: var(--font-size-base); }
-.text-lg { font-size: var(--font-size-lg); }
-.text-xl { font-size: var(--font-size-xl); }
 .text-2xl { font-size: var(--font-size-2xl); }
 
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
+    /* Link utility classes using Material tokens */
+.link-primary {
+    color: var(--mat-sys-primary);
+}
+.link-primary:hover {
+    color: var(--mat-sys-primary);
+    opacity: 0.8;
+}
+.link-secondary {
+    color: var(--mat-sys-secondary);
+}
+.link-secondary:hover {
+    color: var(--mat-sys-secondary);
+    opacity: 0.8;
+}
+.link-unstyled {
+    color: inherit;
+    text-decoration: none;
+}
+.link-unstyled:hover {
+    color: inherit;
+    text-decoration: none;
+}
 
-.leading-tight { line-height: var(--line-height-tight); }
-.leading-normal { line-height: var(--line-height-normal); }
-.leading-relaxed { line-height: var(--line-height-relaxed); }
+    /* Material Design Utility Classes */
+.surface-variant {
+    background-color: var(--mat-sys-surface-variant);
+    color: var(--mat-sys-on-surface-variant);
+}
+.surface-container {
+    background-color: var(--mat-sys-surface-container);
+    color: var(--mat-sys-on-surface);
+}
+.surface-container-high {
+    background-color: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface);
+}
+
+    /* Status indicators using Material tokens */
+.status-success {
+    color: var(--mat-sys-tertiary);
+    background-color: var(--mat-sys-tertiary-container);
+}
+.status-warning {
+    color: var(--mat-sys-secondary);
+    background-color: var(--mat-sys-secondary-container);
+}
+.status-error {
+    color: var(--mat-sys-error);
+    background-color: var(--mat-sys-error-container);
+}
