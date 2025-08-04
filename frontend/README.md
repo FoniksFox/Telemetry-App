@@ -327,6 +327,9 @@ This way, separation of concerns is enforced, and a clear interface with everyth
 Set up Angular Material and created the Header component and Sidebar component with mat components. The sidebar accepts a list of 'actions' to be displayed in the sidebar. This way, the Sidebar is a completely modular component. The header component needs an update to make it completely modular (make the routes and icons be accepted as an input), I just didn't do it yet.
 The dashboard is just a grid for now to test dashboardComponents until the dahboard logic is done.
 
+**August 04, 2025 - Some Dashboar Components**
+Created the Display and CommandButton components to test the app as a whole, and discovered a fatal error in the backend (and frontend, by extension). Commands and Command Templates are not being differenciated, and that causes the simulator to be unable to execute commands. Should fix it ASAP.
+
 ## Resources
 
 - [Angular Documentation](https://angular.io/docs)
