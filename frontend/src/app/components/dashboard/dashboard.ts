@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { Display, DisplayConfig } from '../dashboardComponents/display/display';
+import { CommandButton, CommandConfig } from '../dashboardComponents/command-button/command-button';
 
 @Component({
 	selector: 'app-dashboard',
-	imports: [Display],
+	imports: [Display, CommandButton],
 	template: `
 	<div class="dashboard-grid">
 		<app-display 
@@ -18,7 +19,15 @@ import { Display, DisplayConfig } from '../dashboardComponents/display/display';
 			class="dashboard-item" 
 			[config]="humidityDisplay()">
 		</app-display>
-		@for (i of [4,5,6,7,8,9]; track i) {
+		<app-command-button 
+			class="dashboard-item" 
+			[config]="commandButtonConfig()">
+		</app-command-button>
+		<app-command-button 
+			class="dashboard-item" 
+			[config]="commandButtonConfig2()">
+		</app-command-button>
+		@for (i of [6,7,8,9]; track i) {
 			<div class="dashboard-item">
 				Example Dashboard Component {{ i }}
 			</div>
@@ -73,4 +82,25 @@ export class Dashboard {
 		precision: 1,
 		alertThreshold: { min: 30, max: 70 }
 	});
+
+	commandButtonConfig = signal<CommandConfig>({
+		command: 'reset_sensors',
+		parameters: {},
+		label: 'Reset Sensors',
+		icon: 'refresh',
+		color: 'primary',
+		requireConfirmation: true,
+		confirmationMessage: 'Are you sure you want to reset all sensors to their default values?'
+	});
+
+	commandButtonConfig2 = signal<CommandConfig>({
+		command: 'set_update_interval',
+		parameters: {
+		interval: 1.0
+	},
+	label: 'Fast Updates',
+	icon: 'speed',
+	color: 'accent',
+	hideCommandDetails: true
+});
 }
