@@ -169,6 +169,9 @@ Also eliminated some planned scripts and services that became unnecessary, eithe
 - Removed `utils/` directory - validation integrated into Configuration Manager, data generation handled by Simulator
 - Removed `config/` directory - dynamic configuration eliminates need for static JSON files
 
+**August 04, 2025 - Fatal Error!!**
+There's a fatal error in the handling of commands. There's no distinction between command templates and actual commands! This makes the backend unable to receive actual commands. Should fix ASAP.
+
 *This section will be updated throughout the development process with insights, challenges, and solutions discovered during implementation.*
 
 ---

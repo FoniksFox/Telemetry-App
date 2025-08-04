@@ -36,8 +36,8 @@ This will be a joint project with a simple backend that simulates values and beh
 
 - Component-based architecture with feature modules
 - Reactive programming
-- Angular Material or PrimeNG for UI components
-- Chart.js or D3.js for data visualization
+- Angular Material for UI components
+- Chart.js for data visualization
 - Angular CLI for development and build processes
 
 ### Backend Architecture (Python)
@@ -49,12 +49,12 @@ This will be a joint project with a simple backend that simulates values and beh
 
 #### Core Features
 
-- [ ] Real-time telemetry dashboard
+- [X] Real-time telemetry dashboard
 - [ ] Multiple data visualization charts (line, bar, gauge)
-- [ ] WebSocket connection for live data updates
+- [X] WebSocket connection for live data updates
 - [ ] Responsive design for different screen sizes
-- [ ] Data filtering and time range selection
-- [ ] Communication from the frontend to the backend
+- [X] Data filtering and time range selection
+- [X] Communication from the frontend to the backend
 
 #### Advanced Features (If time permits)
 
@@ -66,8 +66,8 @@ This will be a joint project with a simple backend that simulates values and beh
 - [ ] Dark/light theme toggle
 - [ ] Custom chart configurations
 - [ ] Mobile support
-- [ ] Dynamic command interface based on backend configuration
-- [ ] Real-time validation of telemetry data based on received schemas
+- [X] Dynamic command interface based on backend configuration
+- [X] Real-time validation of telemetry data based on received schemas
 
 ## Project Structure
 
@@ -81,11 +81,13 @@ Telemetry-App/
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── components/     # Reusable components
+│   │   │   │   ├── dashboard/  # Dashboard layout components
+│   │   │   │   ├── dashboardComponents/ # Individual dashboard widgets
+│   │   │   │   ├── header/     # App header component
+│   │   │   │   └── sidebar/    # Navigation sidebar
 │   │   │   ├── services/       # Angular services
 │   │   │   ├── models/         # TypeScript interfaces
-│   │   │   ├── pages/          # Route components
-│   │   │   ├── shared/         # Shared modules
-│   │   │   └── app component   # Files of the app components itself
+│   │   │   └── app.ts          # Main app component
 │   │   ├── assets/             # Static assets
 │   │   └── styles/             # Global styles
 │   └── README.md               # Frontend documentation
@@ -96,13 +98,13 @@ Telemetry-App/
 
 ### Frontend
 
-- **Framework:** Angular 17+
+- **Framework:** Angular 20.1.0+
 - **Language:** TypeScript
-- **Styling:** SCSS + Angular Material/PrimeNG
-- **Charts:** Chart.js or ng2-charts
+- **Styling:** SCSS + Angular Material
+- **Charts:** Chart.js with ng2-charts
 - **HTTP Client:** Angular HttpClient
-- **WebSockets:** Angular WebSocket service
-- **Testing:** *To be determined*
+- **WebSockets:** Native WebSocket API with RxJS
+- **Testing:** Jasmine + Karma
 
 ### Backend
 
@@ -167,7 +169,9 @@ This project will demonstrate:
 
 ## Notes and Reflections
 
-*This section will be updated throughout the development process with insights, challenges, and solutions discovered during implementation.*
+**August 04, 2025 - Final Reflections**
+It's been a week and there's been lots of progress. The core architecture is solid and modular, with a highly configurable dashboard system built with Angular Material. The backend command execution issues have yet to be resolved with proper separation between command templates and command instances. The only thing lacking is, obviously, time! There was just no way to add everything in one week, that was obvious, I just regret not working a little more on advanced features like charts and data visualization, since it is an unexplored field for me, but oh well, it is what it is.
+Another thing that would've been good to do is to look for actual protocols for telemetry, I've seen that many such apps use timeseries in a database, which seems pretty useful to be honest, and I don't know about commands, but I'm sure that there are better, more standard, protocols than the one I implemented.
 
 ## Resources
 
