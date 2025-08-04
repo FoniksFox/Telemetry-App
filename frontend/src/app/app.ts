@@ -3,6 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { Header } from './components/header/header';
 import { Sidebar, SidebarAction } from './components/sidebar/sidebar';
 
+import { ConnectionService } from './services/connection.service';
+
 @Component({
     selector: 'app-root',
     imports: [RouterOutlet, Header, Sidebar],
@@ -30,7 +32,7 @@ export class App {
     
     // Define sidebar actions for testing, should be replaced with actual actions
     sidebarActions: SidebarAction[] = [
-        { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', onClick: () => console.log('Dashboard clicked') },
+        { id: 'add', icon: 'add', label: 'Add', onClick: () => console.log('Add clicked') },
         { id: 'settings', icon: 'settings', label: 'Settings', onClick: () => console.log('Settings clicked') },
         { id: 'about', icon: 'info', label: 'About', onClick: () => console.log('About clicked') }
     ];
@@ -42,4 +44,20 @@ export class App {
     toggleSidebar = (): void => {
         this.sidebar()?.toggle();
     }
+
+    // Make the connection service available for console commands
+    constructor(private connectionService: ConnectionService) {
+        // Initialize connection service or any other setup if needed
+        this.connectionService.connect();
+        
+        // Make connection service available globally for console debugging
+        if (typeof window !== 'undefined') {
+            (window as any).connectionService = this.connectionService;
+            console.log('🔧 ConnectionService available globally as window.connectionService');
+            console.log('📡 Available methods: connect(), disconnect(), sendMessage(), getTelemetryTypes()');
+            console.log('📊 Example: connectionService.getTelemetryTypes().subscribe(console.log)');
+        }
+    }
+    
+
 }

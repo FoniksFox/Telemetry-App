@@ -1,11 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { Display, DisplayConfig } from '../dashboardComponents/display/display';
 
 @Component({
 	selector: 'app-dashboard',
-	imports: [],
+	imports: [Display],
 	template: `
 	<div class="dashboard-grid">
-		@for (i of [1,2,3,4,5,6,7,8,9]; track i) {
+		<app-display 
+			class="dashboard-item" 
+			[config]="temperatureDisplay()">
+		</app-display>
+		<app-display 
+			class="dashboard-item" 
+			[config]="pressureDisplay()">
+		</app-display>
+		<app-display 
+			class="dashboard-item" 
+			[config]="humidityDisplay()">
+		</app-display>
+		@for (i of [4,5,6,7,8,9]; track i) {
 			<div class="dashboard-item">
 				Example Dashboard Component {{ i }}
 			</div>
@@ -23,7 +36,7 @@ import { Component } from '@angular/core';
 		}
 		
 		.dashboard-item {
-			background-color: var(--mat-sys-surface-container);
+			background-color: var(--mat-sys-surface-container-low);
 			border-radius: 8px;
 			padding: 16px;
 			display: flex;
@@ -34,5 +47,30 @@ import { Component } from '@angular/core';
 	`
 })
 export class Dashboard {
-
+	// Example display configurations - these would typically come from user settings
+	temperatureDisplay = signal<DisplayConfig>({
+		telemetryKey: 'temperature',
+		label: 'Temperature',
+		dataType: 'float',
+		unit: '°C',
+		precision: 2,
+		alertThreshold: { min: 0, max: 50 }
+	});
+	
+	pressureDisplay = signal<DisplayConfig>({
+		telemetryKey: 'pressure',
+		label: 'Pressure',
+		dataType: 'float',
+		unit: 'hPa',
+		precision: 0
+	});
+	
+	humidityDisplay = signal<DisplayConfig>({
+		telemetryKey: 'humidity',
+		label: 'Humidity',
+		dataType: 'float',
+		unit: '%',
+		precision: 1,
+		alertThreshold: { min: 30, max: 70 }
+	});
 }
